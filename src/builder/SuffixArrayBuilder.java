@@ -26,7 +26,7 @@ public class SuffixArrayBuilder {
         return new SuffixArray(sa, text, oTable, cTable);
     }*/
 
-    public static SuffixArray reconstructV2(String name){
+    public static SuffixArray reconstruct(String name){
         return (SuffixArray) FileUtil.loadObject("data/" + name + "/suffixArray.tmp");
     }
 

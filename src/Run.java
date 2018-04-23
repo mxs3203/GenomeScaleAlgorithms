@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class Run {
     public static void main(String[] args) {
-        /*if (args.length < 3) {
+        if (args.length < 3) {
             System.out.println("Missing arguments");
             return;
         }
@@ -22,6 +22,6 @@ public class Run {
         for (String key : fastqMap.keySet()) {
             Fastq current = fastqMap.get(key);
             //TODO do some matching here :)
-        }*/
+        }
     }
 }

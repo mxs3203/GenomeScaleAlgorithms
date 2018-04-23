@@ -31,8 +31,8 @@ public class FastqUtil {
                     result.put(id, new Fastq(seq, quality));
                     seq = "";
                     quality = "";
-                    readingSeq = true;
                 }
+                readingSeq = true;
                 id = line.substring(1, line.length()).trim();
             } else if(line.charAt(0) == '+'){
                 readingSeq = false;
