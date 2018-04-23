@@ -1,15 +1,14 @@
 package datastructur;
 
-import algorithms.BucketSort;
-
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-public class SuffixArray {
-    private final int[] suffixArray;
-    private final char[] text;
+public class SuffixArray implements Serializable {
+    private int[] suffixArray;
+    private char[] text;
     private int n;
 
     private List<Character> alphabet;
@@ -17,7 +16,7 @@ public class SuffixArray {
     private int[] C;
     private int[][] O;
 
-    public SuffixArray(int[] suffixArray, char[] text) {
+    private SuffixArray(int[] suffixArray, char[] text) {
         this.suffixArray = suffixArray;
         this.text = text;
         this.n = text.length;
@@ -26,25 +25,16 @@ public class SuffixArray {
         buildOTable();
     }
 
-    public List<Integer> binarySearch(char[] pattern){
-        int j = 0, L = 0, R = n-1, M = 0;
-        do{
-            M = (int) Math.ceil((R+L)/2);
-            if (equals(pattern, suffixArray[M]) ){
-                j = M;
-            } else if (after(pattern, suffixArray[M])){
-                L = M;
-            } else {
-                R = M;
-            }
-        } while (!(L == R || L == R-1 || j != 0));
-
-        List<Integer> result = report(pattern, j);
-        return result;
+    public SuffixArray(int[] suffixArray, char[] text, int[][] oTable, int[] cTable) {
+        this.suffixArray = suffixArray;
+        this.text = text;
+        this.O = oTable;
+        this.C = cTable;
+        this.n = text.length;
     }
 
-    public List<Integer> binarySearchV2(char[] pattern){
-        int j = -1, L = 0, R = n-1, M = 0;
+    public List<Integer> binarySearch(char[] pattern){
+        int j = -1, L = 0, R = n-1, M;
         do{
             M = (int) Math.ceil((R+L)/2);
             if (equals(pattern, suffixArray[M]) ){
@@ -83,7 +73,7 @@ public class SuffixArray {
     }
 
     private int findRight(char[] pattern, int L, int R) {
-        int j = -1, M = 0;
+        int j = -1, M;
         do{
             M = (int) Math.ceil((R+L)/2);
             if ((M == suffixArray.length-1 || !equals(pattern, suffixArray[M+1])) && equals(pattern, suffixArray[M]) ){
@@ -129,21 +119,6 @@ public class SuffixArray {
         List<Integer> result = new ArrayList<>();
         for (int i = L; i <= R; i++){
             result.add(suffixArray[i]);
-        }
-        return result;
-    }
-
-    private List<Integer> report(char[] pattern, int j) {
-        List<Integer> result = new ArrayList<>();
-        int i = j;
-        while (i<suffixArray.length && equals(pattern, suffixArray[i])){
-            result.add(suffixArray[i]);
-            i++;
-        }
-        i = j-1;
-        while (i>=0 && equals(pattern, suffixArray[i])){
-            result.add(suffixArray[i]);
-            i--;
         }
         return result;
     }
@@ -217,28 +192,23 @@ public class SuffixArray {
         }
     }
 
-    public static SuffixArray suffixArrayUsingSort(char[] text){
+    public static SuffixArray suffixArrayUsingSort(String t){
+
         //init
-        String t = String.valueOf(text);
-        List<Integer> list = new ArrayList<Integer>();
+        char[] text = (t+"$").toCharArray();
+        List<Integer> list = new ArrayList<>();
         int n = text.length;
         for(int i = 0; i<text.length; i++){
             list.add(i);
         }
-        text.toString();
 
         //sort
-        /*Collections.sort(list, (i,j)->{
-            return t.substring(i)
-                    .compareTo(
-                            t.substring(j));
-        });*/
-        Collections.sort(list, (i,j)->{
-            while(i<text.length && j<text.length && text[i] == text[j]){
+        list.sort((i, j) -> {
+            while (i < text.length && j < text.length && text[i] == text[j]) {
                 i++;
                 j++;
             }
-            return text[i]-text[j];
+            return text[i] - text[j];
         });
 
 
@@ -250,68 +220,32 @@ public class SuffixArray {
         return new SuffixArray(suffixArray, text);
     }
 
-    public static SuffixArray suffixArrayUsingRadixSort(char[] text){
-        //init
-        List<Integer> list = new ArrayList<Integer>();
-        int n = text.length;
-        for(int i = 0; i<text.length; i++){
-            list.add(i);
-        }
-
-        //radix sort
-        for(int i = n-1; i>=0; i--){
-            int finalI = i;
-            BucketSort.sort(list, (d)-> {
-                if(d+finalI > n-2) return 0;
-                return (int) text[d+finalI] +1;
-            });
-        }
-
-        //change format
-        int[] suffixArray = new int[n];
-        for(int i = 0; i<n;i++){
-            suffixArray[i] = list.get(i);
-        }
-        return new SuffixArray(suffixArray, text);
-    }
-
-    public static SuffixArray suffixArrayUsingRadixSortV1(char[] text){
-        //init
-        List<Integer> list = new ArrayList<Integer>();
-        int n = text.length;
-        for(int i = 0; i<text.length; i++){
-            list.add(i);
-        }
-
-        //radix sort
-        for(int i = n-1; i>=0; i--){
-            int finalI = i;
-            Collections.sort(list, ( d1,  d2)-> {
-                if(d1+finalI > n-2 && d2+finalI > n-2) return 0;
-                if(d1+finalI > n-2) return 1;
-                if(d2+finalI > n-2) return -1;
-                return (int) text[d1+finalI] - text[d2+finalI];
-            });
-        }
-
-        //change format
-        int[] suffixArray = new int[n];
-        for(int i = 0; i<n;i++){
-            suffixArray[i] = list.get(i);
-        }
-        return new SuffixArray(suffixArray, text);
-    }
-
     @Override
     public String toString() {
-        String str = "";
+        StringBuilder str = new StringBuilder();
         for(int i: suffixArray){
-            str += i+":\t";
+            str.append(i).append(":\t");
             for(int j = i; j<text.length; j++){
-                str += text[j];
+                str.append(text[j]);
             }
-            str += "\n";
+            str.append("\n");
         }
-        return str;
+        return str.toString();
+    }
+
+    public int[][] getOTable() {
+        return O;
+    }
+
+    public int[] getCTable() {
+        return C;
+    }
+
+    public int[] getSuffixArray() {
+        return suffixArray;
+    }
+
+    public char[] getText() {
+        return text;
     }
 }

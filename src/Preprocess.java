@@ -1,7 +1,7 @@
 import builder.SuffixArrayBuilder;
 import datastructur.SuffixArray;
 
-public class Preproccess {
+public class Preprocess {
     public static void main(String[] args) {
         if(args.length<1) {
             System.out.println("Missing arguments");
@@ -9,8 +9,9 @@ public class Preproccess {
         }
 
         String filename = args[0];
+        String name = filename.replaceAll(".fa","");
 
         SuffixArray suffixArray = SuffixArrayBuilder.buildFromFile(filename);
-        SuffixArrayBuilder.save(suffixArray, filename.replaceAll(".fa",""));
+        SuffixArrayBuilder.save(suffixArray, name);
     }
 }
