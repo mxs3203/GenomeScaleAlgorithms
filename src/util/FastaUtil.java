@@ -20,21 +20,21 @@ public class FastaUtil {
 
         BufferedReader bufferedReader = new BufferedReader(file);
         String id = null;
-        String seq = "";
+        StringBuilder seq = new StringBuilder();
         for(String line: bufferedReader.lines().collect(Collectors.toList())){
             if(line.charAt(0) == '>'){
                 if(id != null){
-                    result.put(id, seq);
-                    seq = "";
+                    result.put(id, seq.toString());
+                    seq = new StringBuilder();
                 }
                 id = line.substring(1, line.length()).trim();
             } else {
-                seq += line.trim();
+                seq.append(line.trim());
             }
         }
         
         if(id != null){
-            result.put(id, seq);
+            result.put(id, seq.toString());
         }
 
         return result;
@@ -51,18 +51,18 @@ public class FastaUtil {
 
         BufferedReader bufferedReader = new BufferedReader(file);
         String id = null;
-        String seq = "";
+        StringBuilder seq = new StringBuilder();
         for(String line: bufferedReader.lines().collect(Collectors.toList())){
             if(line.charAt(0) == '>'){
                 if(id != null){
-                    return seq;
+                    return seq.toString();
                 }
                 id = line.substring(1, line.length()).trim();
             } else {
-                seq += line.trim();
+                seq.append(line.trim());
             }
         }
 
-        return seq;
+        return seq.toString();
     }
 }

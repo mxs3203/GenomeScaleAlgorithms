@@ -4,6 +4,10 @@ import datastructur.SuffixArray;
 import util.FastaUtil;
 import util.FileUtil;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 public class SuffixArrayBuilder {
     /*public static void save(SuffixArray suffixArray, String name) {
         int[][] oTable = suffixArray.getOTable();
@@ -26,8 +30,13 @@ public class SuffixArrayBuilder {
         return new SuffixArray(sa, text, oTable, cTable);
     }*/
 
-    public static SuffixArray reconstruct(String name){
-        return (SuffixArray) FileUtil.loadObject("data/" + name + "/suffixArray.tmp");
+    public static List<SuffixArray> reconstruct(String name){
+        List<SuffixArray> suffixArrayList = new ArrayList<>();
+        File[] directories = new File("data/" + name + "/").listFiles(File::isDirectory);
+        for(File file: directories){
+            suffixArrayList.add((SuffixArray) FileUtil.loadObject("data/" + name + "/" + file.getName() + "/suffixArray.tmp"));
+        }
+        return suffixArrayList;
     }
 
     public static SuffixArray buildFromFile(String filename) {
@@ -35,7 +44,7 @@ public class SuffixArrayBuilder {
         return suffixArray;
     }
 
-    public static void save(SuffixArray suffixArray, String name) {
-        FileUtil.saveObject(suffixArray, "data/" + name + "/suffixArray.tmp");
+    public static void save(SuffixArray suffixArray, String name, String id) {
+        FileUtil.saveObject(suffixArray, "data/" + name + "/" + id + "/","suffixArray.tmp");
     }
 }

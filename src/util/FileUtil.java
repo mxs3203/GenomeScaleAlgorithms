@@ -4,7 +4,12 @@ import java.io.*;
 import java.util.Map;
 
 public class FileUtil {
-    public static void saveObject(Object o, String destination) {
+    public static void saveObject(Object o, String directoryName, String filename) {
+        String destination = directoryName + filename;
+        File directory = new File(directoryName);
+        if (!directory.exists()){
+            directory.mkdirs();
+        }
         try {
             FileOutputStream fos = new FileOutputStream(destination);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
@@ -20,7 +25,7 @@ public class FileUtil {
         Object tmp = null;
         try {
             FileInputStream fis = new FileInputStream(destination);
-            ObjectInputStream ois = new ObjectInputStream(fis);
+            ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(fis));
             try {
                 tmp = ois.readObject();
             } catch (ClassNotFoundException e) {
@@ -32,5 +37,10 @@ public class FileUtil {
             e.printStackTrace();
         }
         return tmp;
+    }
+
+    public static boolean exist(String directoryName) {
+        File directory = new File(directoryName);
+        return directory.exists();
     }
 }

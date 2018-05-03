@@ -1,6 +1,5 @@
-import builder.SuffixArrayBuilder;
+import algorithm.SuffixArray12;
 import datastructur.SuffixArray;
-import datastructur.SuffixTree;
 import model.Fastq;
 import util.FastaUtil;
 import util.FastqUtil;
@@ -20,20 +19,16 @@ public class Exact {
         String referenceFilename = args[1];
         String readsFilename = args[2];
 
-        //SuffixArray suffixArray = SuffixArrayBuilder.buildFromFile(referenceFilename);
-        SuffixTree suffixTree = new SuffixTree(FastaUtil.getFirst(referenceFilename));
-
+        SuffixArray suffixArray = SuffixArray12.build(FastaUtil.getFirst(referenceFilename), "chr1");
         Map<String, Fastq> fastqMap = FastqUtil.parseTo(readsFilename);
-        int counter = 0;
         for (String key : fastqMap.keySet()) {
             Fastq current = fastqMap.get(key);
-            String sequens = current.getSeq();
-            List<Integer> positions = suffixTree.match(sequens.toCharArray());
+            String sequences = current.getSeq();
+            List<Integer> positions = suffixArray.bw(sequences.toCharArray());
             for (int pos : positions) {
-                System.out.println(key + "\t0\tchr1\t" + (pos+1) + "\t0\t"
-                        + sequens.length() + "M\t*\t0\t0\t" + sequens + "\t" + current.getQuality());
+                System.out.println(key + "\t0\t" + suffixArray.getId() + "\t" + (pos+1) + "\t0\t"
+                        + sequences.length() + "M\t*\t0\t0\t" + sequences + "\t" + current.getQuality());
             }
-            counter++;
         }
     }
 }

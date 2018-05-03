@@ -9,21 +9,23 @@ import java.util.List;
 public class SuffixTree<T> {
     Node<T> root;
     public char[] text;
+    private String id;
 
-    public SuffixTree(String t){
-        text = (t+"$").toCharArray();
-        root = new Node(-1,-1, -1);
+    public SuffixTree(String t, String id) {
+        text = (t + "$").toCharArray();
+        this.id = id;
+        root = new Node(-1, -1, -1);
         root.s = root;
         buildMcCreight();
     }
 
-    public SuffixTree(char[] t){
-        text = new char[t.length+1];
-        for(int i = 0; i<t.length; i++){
+    public SuffixTree(char[] t) {
+        text = new char[t.length + 1];
+        for (int i = 0; i < t.length; i++) {
             text[i] = t[i];
         }
         text[t.length] = '$';
-        root = new Node(-1,-1, -1);
+        root = new Node(-1, -1, -1);
         root.s = root;
         buildMcCreight();
     }
@@ -33,32 +35,46 @@ public class SuffixTree<T> {
         this.root = root;
     }
 
-    public List<Integer> matchesOfKDistance(char[] pattern, int k){
-        return matchesOfKDistance(pattern, k, root);
+    public List<Integer> matchesOfKDistance(char[] pattern, int k) {
+        return matchesOfKDistance(pattern, k, root, 0, 0);
     }
 
-    private List<Integer> matchesOfKDistance(char[] pattern, int k, Node<T> current) {
+    private List<Integer> matchesOfKDistance(char[] pattern, int k, Node<T> current, int labelIndex, int patternIndex) {
         List<Integer> result = new ArrayList<>();
-        for(Node child: current.children){
-
+        if (patternIndex >= pattern.length) {
+            //report UBTREE
+        } else if (labelIndex < (current.end - current.start)) {
+            if (pattern[patternIndex] == text[current.start + labelIndex]) {
+                matchesOfKDistance(pattern, k, current, labelIndex + 1, patternIndex + 1);
+            } else if (k > 0) {
+                matchesOfKDistance(pattern, k - 1, current, labelIndex + 1, patternIndex + 1);
+            }
+            if (k > 0) {
+                matchesOfKDistance(pattern, k - 1, current, labelIndex, patternIndex + 1);
+                matchesOfKDistance(pattern, k - 1, current, labelIndex + 1, patternIndex);
+            }
+        } else {
+            for (Node child : current.children) {
+                matchesOfKDistance(pattern, k, child, 0, patternIndex);
+            }
         }
         return result;
     }
 
-    private void buildMcCreight(){
+    private void buildMcCreight() {
         int n = text.length;
         Node[] head = new Node[n];
         head[0] = root;
-        Node newNode = new Node(0, n-1, 0);
+        Node newNode = new Node(0, n - 1, 0);
         root.children.add(newNode);
         int tailI = 0;
-        for(int i = 0; i < n-1; i++){
-            int startIndex = i+1;
-            if(head[i] == root){// if head(i) =  then
-                Pair<Node, Integer> r = slowscanAndBuild(root, i+1, n-1);
-                head[i+1] = r.getKey();
+        for (int i = 0; i < n - 1; i++) {
+            int startIndex = i + 1;
+            if (head[i] == root) {// if head(i) =  then
+                Pair<Node, Integer> r = slowscanAndBuild(root, i + 1, n - 1);
+                head[i + 1] = r.getKey();
                 Integer tailINext = r.getValue();
-                head[i+1].children.add(new Node(tailINext, n-1, startIndex, head[i+1]));
+                head[i + 1].children.add(new Node(tailINext, n - 1, startIndex, head[i + 1]));
                 tailI = tailINext;
                 continue;
             }
@@ -67,33 +83,33 @@ public class SuffixTree<T> {
             int vEnd = head[i].end;//v = label(u,head(i))
             Node w = null;
             int wi = -1;
-            if(u != root){// u != ""
+            if (u != root) {// u != ""
                 Pair<Node, Integer> r = fastscanAndBuild(u.s, vStart, vEnd);//w = fastscan(s(u),v)//TODO brug fastscan
                 w = r.getKey();
                 wi = r.getValue();
             } else {
-                Pair<Node, Integer> r = fastscanAndBuild(root, vStart+1, vEnd);//w = fastscan(,v[2..|v|])//TODO brug fastscan
+                Pair<Node, Integer> r = fastscanAndBuild(root, vStart + 1, vEnd);//w = fastscan(,v[2..|v|])//TODO brug fastscan
                 w = r.getKey();
                 wi = r.getValue();
             }
 
             int tailINext = -1;
-            if(wi<=vEnd){//if w is an edge then//TODO < eller <=
-                head[i+1] = w;
+            if (wi <= vEnd) {//if w is an edge then//TODO < eller <=
+                head[i + 1] = w;
                 tailINext = wi;
-            } else if(wi>vEnd) {
-                Pair<Node, Integer> r = slowscanAndBuild(w, tailI, n-1);
-                head[i+1] = r.getKey();
+            } else if (wi > vEnd) {
+                Pair<Node, Integer> r = slowscanAndBuild(w, tailI, n - 1);
+                head[i + 1] = r.getKey();
                 tailINext = r.getValue();
             }
             head[i].s = w;
-            head[i+1].children.add(new Node(tailINext,text.length-1,startIndex, head[i+1]));
+            head[i + 1].children.add(new Node(tailINext, text.length - 1, startIndex, head[i + 1]));
             tailI = tailINext;
         }
     }
 
-    private Pair<Node,Integer> fastscanAndBuild(Node<T> parent, int start, int end) {
-        if(start<=end) {
+    private Pair<Node, Integer> fastscanAndBuild(Node<T> parent, int start, int end) {
+        if (start <= end) {
             for (Node<T> child : parent.children) {
                 if (text[child.start] == text[start]) {
                     int k = Math.min(end - start + 1, child.end - child.start + 1);
@@ -117,8 +133,8 @@ public class SuffixTree<T> {
     }
 
 
-    private Pair<Node, Integer> slowscanAndBuild(Node<T> parent, int start, int end){//TODO USE end!!!
-        if(start<=end) {
+    private Pair<Node, Integer> slowscanAndBuild(Node<T> parent, int start, int end) {//TODO USE end!!!
+        if (start <= end) {
             for (Node<T> child : parent.children) {
                 if (text[child.start] == text[start]) {
                     int k = 1;
@@ -147,8 +163,8 @@ public class SuffixTree<T> {
     }
 
     private boolean headIsEmpty(Node<T> head, int i) {
-        for(Node<T> child : head.children){
-            if(text[child.start] == text[i]) {
+        for (Node<T> child : head.children) {
+            if (text[child.start] == text[i]) {
                 return false;
             }
         }
@@ -157,7 +173,7 @@ public class SuffixTree<T> {
 
     private void build() {
         int n = text.length;
-        for(int i = 0; i < n; i++){
+        for (int i = 0; i < n; i++) {
             build(root, i, i);
         }
     }
@@ -166,69 +182,68 @@ public class SuffixTree<T> {
 
         boolean matched = false;
         ArrayList<Node> children = new ArrayList<>(parent.children);
-        for(Node child : children){
-            if(text[child.start] == text[i]){
+        for (Node child : children) {
+            if (text[child.start] == text[i]) {
                 matched = true;
                 int k = 1;
-                while(text[child.start+k] == text[i+k] && child.start+k<child.end) {//look though edge label
+                while (text[child.start + k] == text[i + k] && child.start + k < child.end) {//look though edge label
                     k++;
                 }
 
-                if(text[child.start+k] != text[i+k] && child.start+k<=child.end){//missmatch found in edge label
-                    Node newNode = new Node(child.start, child.start+k-1, -1);
-                    child.start = child.start+k;
+                if (text[child.start + k] != text[i + k] && child.start + k <= child.end) {//missmatch found in edge label
+                    Node newNode = new Node(child.start, child.start + k - 1, -1);
+                    child.start = child.start + k;
                     parent.children.remove(child);
                     newNode.children.add(child);
                     parent.children.add(newNode);
-                    build(newNode,i+k, startIndex);
+                    build(newNode, i + k, startIndex);
                 } else {//edge label completly matched
-                    build(child, i+k, startIndex);
+                    build(child, i + k, startIndex);
                 }
             }
         }
 
-        if(!matched){//no matching child
-            parent.children.add(new Node(i, text.length-1, startIndex));
+        if (!matched) {//no matching child
+            parent.children.add(new Node(i, text.length - 1, startIndex));
         }
     }
 
-    public List<Integer> match(char[] pattern){
+    public List<Integer> match(char[] pattern) {
         return match(root, pattern, 0);
     }
 
-    public static List<Integer> match(char[] text, char[] pattern){
+    public static List<Integer> match(char[] text, char[] pattern) {
         return new SuffixTree(text).match(pattern);
     }
 
-    public List<Integer> farstMatch(char[] pattern){
+    public List<Integer> farstMatch(char[] pattern) {
         return farstMatch(root, pattern, 0);
     }
 
     /**
-     *  Using a suffix tree for exact pattern matching
-        Say that we want to find the occurrences of a pattern (of length m) in text (of length n), and that we know that
-        the pattern occurs at least once. Using a suffix tree we can solve this problem in worst case time O(m + z),
-        where z is the number of occurrences, but can it be done faster in the best case since we know that the pattern
-        occurs at least once in the text?
-
-     * @postcondition pattern must exist in the tree
+     * Using a suffix tree for exact pattern matching
+     * Say that we want to find the occurrences of a pattern (of length m) in text (of length n), and that we know that
+     * the pattern occurs at least once. Using a suffix tree we can solve this problem in worst case time O(m + z),
+     * where z is the number of occurrences, but can it be done faster in the best case since we know that the pattern
+     * occurs at least once in the text?
      *
      * @param parent
      * @param pattern
      * @param i
      * @return
+     * @postcondition pattern must exist in the tree
      */
     private List<Integer> farstMatch(Node<T> parent, char[] pattern, int i) {
         ArrayList<Integer> result = new ArrayList<>();
-        for(Node<T> child: parent.children){
+        for (Node<T> child : parent.children) {
             int k = 0;
-            if(text[child.start] == pattern[i]){
+            if (text[child.start] == pattern[i]) {
                 k = child.end - child.start + 1;
             }
-            if(i+k >= pattern.length){
+            if (i + k >= pattern.length) {
                 result.addAll(reportSubTree(child));
-            } else if(child.start+k>child.end) {
-                result.addAll(farstMatch(child, pattern, i+k));
+            } else if (child.start + k > child.end) {
+                result.addAll(farstMatch(child, pattern, i + k));
             }
         }
         return result;
@@ -254,16 +269,16 @@ public class SuffixTree<T> {
 
     private List<Integer> match(Node<T> parent, char[] pattern, int i) {
         ArrayList<Integer> result = new ArrayList<>();
-        for(Node<T> child: parent.children){
+        for (Node<T> child : parent.children) {
             int k = 0;
-            while(i+k < pattern.length && text[child.start+k] == pattern[i+k] && child.start+k<=child.end) {
+            while (i + k < pattern.length && text[child.start + k] == pattern[i + k] && child.start + k <= child.end) {
                 k++;
             }
 
-            if(i+k == pattern.length){
+            if (i + k == pattern.length) {
                 result.addAll(reportSubTree(child));
-            } else if(child.start+k>child.end) {
-                result.addAll(match(child, pattern, i+k));
+            } else if (child.start + k > child.end) {
+                result.addAll(match(child, pattern, i + k));
             }
         }
         return result;
@@ -271,11 +286,11 @@ public class SuffixTree<T> {
 
     private List<Integer> reportSubTree(Node<T> parent) {
         List<Integer> result = new ArrayList<>();
-        if(parent.children.size() == 0){
+        if (parent.children.size() == 0) {
             result.add(parent.startIndex);
         }
 
-        for(Node<T> child: parent.children){
+        for (Node<T> child : parent.children) {
             result.addAll(reportSubTree(child));
         }
 
@@ -289,22 +304,22 @@ public class SuffixTree<T> {
     }*/
 
     private int buildSuffixArray(Node<T> current, int[] suffixArray, int i) {
-        Collections.sort(current.children, (o1, o2)->{
-            if(text[o1.start] == '$') return -1;
-            if(text[o2.start] == '$') return 1;
+        Collections.sort(current.children, (o1, o2) -> {
+            if (text[o1.start] == '$') return -1;
+            if (text[o2.start] == '$') return 1;
             return text[o1.start] - text[o2.start];
         });
-        for(Node<T> child: current.children){
+        for (Node<T> child : current.children) {
             i = buildSuffixArray(child, suffixArray, i);
         }
-        if(current.children.size() == 0){
+        if (current.children.size() == 0) {
             suffixArray[i] = current.startIndex;
             i++;
         }
         return i;
     }
 
-    public static int countNonOverlappingOccurrences(char[] pattern){
+    public static int countNonOverlappingOccurrences(char[] pattern) {
         return 0;
     }
 
@@ -312,7 +327,11 @@ public class SuffixTree<T> {
         return root;
     }
 
-    public static class Node<T>{
+    public String getId() {
+        return id;
+    }
+
+    public static class Node<T> {
         public Node<T> parent;
         Node<T> s;
         public int start;
@@ -327,11 +346,11 @@ public class SuffixTree<T> {
             this.startIndex = startIndex;
         }
 
-        public void setExtra(T extra){
+        public void setExtra(T extra) {
             this.extra = extra;
         }
 
-        public T getExtra(){
+        public T getExtra() {
             return extra;
         }
 

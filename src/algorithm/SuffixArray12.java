@@ -1,6 +1,12 @@
 package algorithm;
 
+import datastructur.SuffixArray;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
 public class SuffixArray12 {
+
     static boolean leq(int a1, int a2,   int b1, int b2) { // lexic. order for pairs
         return(a1 < b1 || a1 == b1 && a2 <= b2);
     }                                                   // and triples
@@ -19,10 +25,28 @@ public class SuffixArray12 {
     }
 
     public static int[] suffixArray(String text){
+        text += "$";
+        ArrayList<Character> alphabet = new ArrayList<>();
+        HashMap<Character, Integer> alphabetMap = new HashMap<>();
+        alphabet.add('$');
+        alphabetMap.put('$', 0);
+        alphabet.add('A');
+        alphabetMap.put('A', 1);
+        alphabet.add('C');
+        alphabetMap.put('C', 2);
+        alphabet.add('G');
+        alphabetMap.put('G', 3);
+        alphabet.add('T');
+        alphabetMap.put('T', 4);
+
         int n = text.length();
         int[] T = new int[n+3];
         int[] SA = new int[n];
         for(int i = 0; i<n; i++) SA[i] = i;
+        for(int i = 0; i<n; i++) T[i] = alphabetMap.get(text.charAt(i));
+        T[n] = 0;
+        T[n + 1] = 0;
+        T[n + 2] = 0;
         return suffixArray( T, SA, n, 4);
     }
 
@@ -94,5 +118,39 @@ public class SuffixArray12 {
 
     private static int GetI(int[] SA12, int t, int n0){
         return (SA12[t] < n0 ? SA12[t] *3+1: (SA12[t] - n0) * 3 + 2);
+    }
+
+    public static SuffixArray build(String id, String text) {
+        text += "$";
+        ArrayList<Character> alphabet = new ArrayList<>();
+        HashMap<Character, Integer> alphabetMap = new HashMap<>();
+        alphabet.add('$');
+        alphabetMap.put('$', 0);
+        alphabet.add('A');
+        alphabetMap.put('A', 1);
+        alphabet.add('C');
+        alphabetMap.put('C', 2);
+        alphabet.add('G');
+        alphabetMap.put('G', 3);
+        alphabet.add('T');
+        alphabetMap.put('T', 4);
+
+        int n = text.length();
+        int[] T = new int[n+3];
+        int[] SA = new int[n];
+        for(int i = 0; i<n; i++) SA[i] = i;
+        for(int i = 0; i<n; i++) {
+            try {
+                T[i] = alphabetMap.get(text.charAt(i));
+            }catch (Exception e){
+                System.out.println("n: " + n + " i: " + i + " chr: " + text.charAt(i));
+                throw e;
+            }
+        }
+        T[n] = 0;
+        T[n + 1] = 0;
+        T[n + 2] = 0;
+        int[] sa = suffixArray( T, SA, n, 4);
+        return new SuffixArray(sa,text.toCharArray(), id);
     }
 }

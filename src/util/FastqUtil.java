@@ -22,29 +22,29 @@ public class FastqUtil {
 
         BufferedReader bufferedReader = new BufferedReader(file);
         String id = null;
-        String seq = "";
-        String quality = "";
+        StringBuilder seq = new StringBuilder();
+        StringBuilder quality = new StringBuilder();
         boolean readingSeq = false;
         for(String line: bufferedReader.lines().collect(Collectors.toList())){
             if(line.charAt(0) == '@') {
                 if (id != null) {
-                    result.put(id, new Fastq(seq, quality));
-                    seq = "";
-                    quality = "";
+                    result.put(id, new Fastq(seq.toString(), quality.toString()));
+                    seq = new StringBuilder();
+                    quality = new StringBuilder();
                 }
                 readingSeq = true;
                 id = line.substring(1, line.length()).trim();
             } else if(line.charAt(0) == '+'){
                 readingSeq = false;
             } else if(readingSeq){
-                seq += line.trim();
+                seq.append(line.trim());
             } else {
-                quality += line.trim();
+                quality.append(line.trim());
             }
         }
 
         if(id != null){
-            result.put(id, new Fastq(seq, quality));
+            result.put(id, new Fastq(seq.toString(), quality.toString()));
         }
 
         return result;
