@@ -19,20 +19,23 @@ public class SuffixArray implements Serializable {
     private HashMap<Character, Integer> alphabetMap;
     private int[] C;
     private int[][] O;
+    private int[][] O_;
     private boolean[][] B;
+    private int[] D;
 
     public SuffixArray(int[] suffixArray, char[] text) {
-        this(suffixArray, text, "chr1");
+        this(suffixArray, suffixArray, text, text, "chr1");//todo wrong
     }
 
-    public SuffixArray(int[] suffixArray, char[] text, String id) {
+    public SuffixArray(int[] suffixArray, int[] suffixArray_, char[] text, char[] text_, String id) {
         this.id = id;
         this.suffixArray = suffixArray;
         this.text = text;
         this.n = text.length;
         buildAlphabet();
         buildCTable();
-        buildOTable();
+        O_ = buildOTable(suffixArray_, text_);
+        O = buildOTable(suffixArray, text);
         buildBTable();
     }
 
@@ -119,33 +122,52 @@ public class SuffixArray implements Serializable {
     }
 
     public List<Pair<String,Interval>> matchesOfKDistance(char[] P, int k){
+        buildDTable(P);
         return k_differences(P, P.length-1, k, 0, text.length-1, "");
+    }
+
+    private void buildDTable(char[] P) {
+        int m = P.length;
+        D = new int[m];
+        int k = 1;
+        int l = n - 1;
+        int z = 0;
+        for (int i = 0; i < m; i++ ) {
+            k = C[alphabetMap.get(P[i])] + O_[alphabetMap.get(P[i])][k - 1] + 1;//TODO måske map alphabet
+            l = C[alphabetMap.get(P[i])] + O_[alphabetMap.get(P[i])][l];
+            if (k > l) {
+                k = 1;
+                l = n - 1;
+                z = z + 1;
+            }
+            D[i] = z;
+        }
     }
 
     private List<Pair<String,Interval>> k_differences(char[] P, int j, int d, int lb, int rb, String cigar){
         List<Pair<String,Interval>> I = new ArrayList<>();
-        if(d < 0){
+
+        if(d < 0 || (j >= 0 && d < D[j] - 1)){
             return Collections.EMPTY_LIST;
         }
+
         if (j == -1){
             I.add(new Pair<>(cigar, new Interval(lb,rb)));
             return I;
         }
-        if(d>0)
-            I.addAll(k_differences(P, j-1, d-1, lb, rb, "D" + cigar)); //Deletion
+
+        I.addAll(k_differences(P, j-1, d-1, lb, rb, "D" + cigar)); //Deletion
         List<Pair<Integer, Interval>> list = getIntervals(lb, rb);
         for (Pair<Integer, Interval> pair: list){
             int c = pair.getFirst();
             Interval lbrb = pair.getSecond();
             lb = lbrb.getL();
             rb = lbrb.getR();
-            if(d>0)
-                I.addAll(k_differences(P, j, d-1,lb, rb, "I" + cigar)); //insertion
+            I.addAll(k_differences(P, j, d-1,lb, rb, "I" + cigar)); //insertion
             if (alphabetMap.get(P[j]) == c){
                 I.addAll(k_differences(P, j-1, d, lb, rb, "=" + cigar)); //match
             } else {
-                if(d>0)
-                    I.addAll(k_differences(P, j-1, d-1, lb, rb, "X" + cigar)); //substation
+                I.addAll(k_differences(P, j-1, d-1, lb, rb, "X" + cigar)); //substation
             }
         }
         return I;
@@ -257,8 +279,8 @@ public class SuffixArray implements Serializable {
         }
     }
 
-    private void buildOTable() {
-        O = new int[alphabet.size()][suffixArray.length];
+    private int[][] buildOTable(int[] suffixArray, char[] text) {
+        int[][] O = new int[alphabet.size()][suffixArray.length];
         for (int i = 0; i < suffixArray.length; i++) {
             for (int j = 0; j < alphabet.size(); j++) {
                 int SAi = suffixArray[i];
@@ -277,7 +299,9 @@ public class SuffixArray implements Serializable {
                 }
             }
         }
+        return O;
     }
+
 
     public static SuffixArray suffixArrayUsingSort(String t) {
 

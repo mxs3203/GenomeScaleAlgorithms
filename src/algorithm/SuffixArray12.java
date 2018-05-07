@@ -121,6 +121,8 @@ public class SuffixArray12 {
     }
 
     public static SuffixArray build(String id, String text) {
+        String text_ = new StringBuilder(text).reverse().toString();
+        text_ += "$";
         text += "$";
         ArrayList<Character> alphabet = new ArrayList<>();
         HashMap<Character, Integer> alphabetMap = new HashMap<>();
@@ -136,6 +138,12 @@ public class SuffixArray12 {
         alphabetMap.put('T', 4);
 
         int n = text.length();
+        int[] sa = suffixArrayFromText(text, alphabetMap, n);
+        int[] sa_ = suffixArrayFromText(text_, alphabetMap, n);
+        return new SuffixArray(sa, sa_, text.toCharArray(), text_.toCharArray(), id);
+    }
+
+    private static int[] suffixArrayFromText(String text, HashMap<Character, Integer> alphabetMap, int n) {
         int[] T = new int[n+3];
         int[] SA = new int[n];
         for(int i = 0; i<n; i++) SA[i] = i;
@@ -150,7 +158,6 @@ public class SuffixArray12 {
         T[n] = 0;
         T[n + 1] = 0;
         T[n + 2] = 0;
-        int[] sa = suffixArray( T, SA, n, 4);
-        return new SuffixArray(sa,text.toCharArray(), id);
+        return suffixArray( T, SA, n, 4);
     }
 }
