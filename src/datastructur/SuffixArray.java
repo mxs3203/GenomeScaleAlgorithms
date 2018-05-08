@@ -40,6 +40,27 @@ public class SuffixArray implements Serializable {
         //buildBTable();
     }
 
+    public SuffixArray(char[] text, int[] sa, String id, int[][] oTable, int[] cTable) {
+        this.id = id;
+        this.suffixArray = sa;
+        this.text = text;
+        this.n = text.length;
+        this.O = oTable;
+        this.C = cTable;
+        buildAlphabet();
+    }
+
+    public SuffixArray(char[] text, int[] sa, String id, int[][] oTable, int[][] o_Table, int[] cTable) {
+        this.id = id;
+        this.suffixArray = sa;
+        this.text = text;
+        this.n = text.length;
+        this.O = oTable;
+        this.O_ = o_Table;
+        this.C = cTable;
+        buildAlphabet();
+    }
+
     public List<Integer> binarySearch(char[] pattern) {
         int j = -1, L = 0, R = n - 1, M;
         do {
@@ -419,11 +440,11 @@ public class SuffixArray implements Serializable {
         return id;
     }
 
-    public int[][] getO_() {
+    public int[][] getO_Table() {
         return O_;
     }
 
-    public void setO_(int[][] o_) {
+    public void setO_Table(int[][] o_) {
         O_ = o_;
     }
 }

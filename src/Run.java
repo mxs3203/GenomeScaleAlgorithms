@@ -34,7 +34,7 @@ public class Run {
 
     private static void suffixArrayInexact(int d, String referenceFilename, String readsFilename) {
         //long startTime = System.nanoTime();
-        List<SuffixArray> suffixArrayList = SuffixArrayBuilder.reconstruct(referenceFilename.replace(".fa", ""));
+        List<SuffixArray> suffixArrayList = SuffixArrayBuilder.reconstructInExact(referenceFilename.replace(".fa", ""));
         //long middleTime = System.nanoTime();
         //System.out.println("Done loading!");
         Map<String, Fastq> fastqMap = FastqUtil.parseTo(readsFilename);
@@ -59,7 +59,7 @@ public class Run {
 
     private static void suffixArrayExact(String referenceFilename, String readsFilename) {
         //long startTime = System.nanoTime();
-        List<SuffixArray> suffixArrayList = SuffixArrayBuilder.reconstruct(referenceFilename.replace(".fa", ""));
+        List<SuffixArray> suffixArrayList = SuffixArrayBuilder.reconstructExact(referenceFilename.replace(".fa", ""));
         //long middleTime = System.nanoTime();
         Map<String, Fastq> fastqMap = FastqUtil.parseTo(readsFilename);
         for (SuffixArray suffixArray : suffixArrayList) {
