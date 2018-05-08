@@ -25,10 +25,10 @@ public class Run {
         String readsFilename = args[2];
 
 
-        if( d>0) {
+        if (d > 0) {
             suffixArrayInexact(d, referenceFilename, readsFilename);
         } else {
-           suffixArrayExact(referenceFilename, readsFilename);
+            suffixArrayExact(referenceFilename, readsFilename);
         }
     }
 
@@ -42,13 +42,13 @@ public class Run {
             for (String key : fastqMap.keySet()) {
                 Fastq current = fastqMap.get(key);
                 String sequens = current.getSeq();
-                List<Pair<String,Interval>> positions = suffixArray.matchesOfKDistance(sequens.toCharArray(), d);
-                for (Pair<String,Interval> pr : positions) {
+                List<Pair<String, Interval>> positions = suffixArray.matchesOfKDistance(sequens.toCharArray(), d);
+                for (Pair<String, Interval> pr : positions) {
                     String cigar = CigarUtil.compress(pr.getFirst());
                     Interval pos = pr.getSecond();
-                    for(int i = pos.getL(); i<=pos.getR(); i++ )
-                    System.out.println(key + "\t0\t" + suffixArray.getId() + "\t" + (suffixArray.getSuffixArray()[i]+1) + "\t0\t"
-                            + cigar + "\t*\t0\t0\t" + sequens + "\t" + current.getQuality());
+                    for (int i = pos.getL(); i <= pos.getR(); i++)
+                        System.out.println(key + "\t0\t" + suffixArray.getId() + "\t" + (suffixArray.getSuffixArray()[i] + 1) + "\t0\t"
+                                + cigar + "\t*\t0\t0\t" + sequens + "\t" + current.getQuality());
                 }
             }
         }

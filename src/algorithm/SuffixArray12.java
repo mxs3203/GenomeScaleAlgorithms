@@ -122,8 +122,8 @@ public class SuffixArray12 {
 
     public static SuffixArray build(String id, String text) {
         String text_ = new StringBuilder(text).reverse().toString();
-        text_ += "$";
         text += "$";
+        text_ += "$";
         ArrayList<Character> alphabet = new ArrayList<>();
         HashMap<Character, Integer> alphabetMap = new HashMap<>();
         alphabet.add('$');

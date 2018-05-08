@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SuffixArrayBuilder {
-    /*public static void save(SuffixArray suffixArray, String name) {
+    public static void save(SuffixArray suffixArray, String name) {
         int[][] oTable = suffixArray.getOTable();
         int[] cTable = suffixArray.getCTable();
         int[] sa = suffixArray.getSuffixArray();
@@ -21,14 +21,14 @@ public class SuffixArrayBuilder {
         FileUtil.saveObject(text, "data/" + name + "/text.tmp");
     }
 
-    public static SuffixArray reconstruct(String name) {
+    public static SuffixArray reconstructExact(String name) {
         int[][] oTable = (int[][]) FileUtil.loadObject("data/" + name + "/oTable.tmp");
         int[] cTable = (int[]) FileUtil.loadObject("data/" + name + "/cTable.tmp");
         int[] sa = (int[]) FileUtil.loadObject("data/" + name + "/suffixArray.tmp");
         char[] text = (char[]) FileUtil.loadObject("data/" + name + "/text.tmp");
         //TODO måske også hent alphabetet og alphabetMap
         return new SuffixArray(sa, text, oTable, cTable);
-    }*/
+    }
 
     public static List<SuffixArray> reconstruct(String name){
         List<SuffixArray> suffixArrayList = new ArrayList<>();
